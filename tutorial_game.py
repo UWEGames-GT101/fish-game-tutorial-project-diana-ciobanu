@@ -54,6 +54,13 @@ class MyASGEGame(pyasge.ASGEGame):
         self.initScoreboard()
 
         # This is a comment
+        self.fish_velocity = 6
+        self.fish_types = ["/data/images/kenney_fishpack/fishTile_073.png",
+                           "/data/images/kenney_fishpack/fishTile_075.png",
+                           "/data/images/kenney_fishpack/fishTile_077.png",
+                           "/data/images/kenney_fishpack/fishTile_079.png",
+                           "/data/images/kenney_fishpack/fishTile_081.png",
+                           "/data/images/kenney_fishpack/fishTile_103.png"]
         self.fish = pyasge.Sprite()
         self.initFish()
 
@@ -65,7 +72,7 @@ class MyASGEGame(pyasge.ASGEGame):
             return False
 
     def initFish(self) -> bool:
-        if self.fish.loadTexture("/data/images/kenney_fishpack/fishTile_073.png"):
+        if self.fish.loadTexture(random.choice(self.fish_types)):
             self.fish.z_order = 1
             self.fish.scale = 1
             self.fish.x = 300
@@ -105,6 +112,7 @@ class MyASGEGame(pyasge.ASGEGame):
             event.button == pyasge.MOUSE.MOUSE_BTN1:
             if isInside(self.fish, event.x, event.y):
                 self.data.score += 1
+                self.fish_velocity = random.randint(3, 15)
                 self.scoreboard.string = str(self.data.score).zfill(6)
                 self.spawn()
 
@@ -131,9 +139,12 @@ class MyASGEGame(pyasge.ASGEGame):
     def spawn(self) -> None:
         x = random.randint(0, self.data.game_res[0] - self.fish.width)
         y = random.randint(0, self.data.game_res[1] - self.fish.height)
-
+        size = random.uniform(0.5, 1.6)
+        fish_type = random.choice(self.fish_types)
+        self.fish.loadTexture(fish_type)
         self.fish.x = x
         self.fish.y = y
+        self.fish.scale = size
 
     def update(self, game_time: pyasge.GameTime) -> None:
 
@@ -141,8 +152,9 @@ class MyASGEGame(pyasge.ASGEGame):
             # update the menu here
             pass
         else:
-            # update the game here
-            pass
+            self.fish.x += self.fish_velocity
+            if self.fish.x <= 0 or self.fish.x >= (1600 - self.fish.width):
+                self.fish_velocity = -self.fish_velocity
 
     def render(self, game_time: pyasge.GameTime) -> None:
         """
